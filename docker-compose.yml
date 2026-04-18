@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  # Runs the 8-scenario deterministic demo (no API key needed)
+  demo:
+    build: .
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    command: python test_runner.py
+
+  # Runs the pytest suite (no API key needed — LLM is mocked in tests)
+  tests:
+    build: .
+    command: pytest tests/ -v --tb=short
