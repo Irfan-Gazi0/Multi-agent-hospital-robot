@@ -47,8 +47,8 @@ You can run the demo and all tests **without** an API key.
 **1. Download the code**
 
 ```bash
-git clone https://github.com/Irfan-Gazi0/robot-multi-agent-pytree.git
-cd robot-multi-agent-pytree
+git clone https://github.com/Irfan-Gazi0/Multi-agent-hospital-robot.git
+cd Multi-agent-hospital-robot
 ```
 
 **2. Make a virtual environment** (a private box for this project's Python packages)
