@@ -51,72 +51,23 @@ def create_consensus_tree() -> py_trees.trees.BehaviourTree:
     is visible on startup.
     """
 
-    # ── Priority 1: Infrastructure Emergency ─────────────────────────
-    p1_infrastructure = py_trees.composites.Sequence(
-        name="P1_Infrastructure_Emergency",
-        memory=False,
-    )
-    p1_infrastructure.add_children([
-        CheckFacilityEmergency(),
-        HaltAndAlertNurse(),
-    ])
+    branches = [
+        ("P1_Infrastructure_Emergency", CheckFacilityEmergency, HaltAndAlertNurse),
+        ("P2_Security_Override",        CheckAccessLevel,       InsufficientAccessMessage),
+        ("P3_Task_Plan_Validation",     CheckInvalidTaskPlan,   InvalidPlanMessage),
+        ("P4_Medication_Safety",        CheckMedicationSafety,  MedicationSafetyAlert),
+        ("P5_Ambiguity_Detection",      CheckAmbiguousCommand,  AmbiguityResolutionRequest),
+    ]
+    children = []
+    for name, cond, action in branches:
+        seq = py_trees.composites.Sequence(name=name, memory=False)
+        seq.add_children([cond(), action()])
+        children.append(seq)
 
-    # ── Priority 2: Security / Access Control ─────────────────────────
-    p2_security = py_trees.composites.Sequence(
-        name="P2_Security_Override",
-        memory=False,
-    )
-    p2_security.add_children([
-        CheckAccessLevel(),
-        InsufficientAccessMessage(),
-    ])
-
-    # ── Priority 3: Task Plan Validation ──────────────────────────────
-    p3_validation = py_trees.composites.Sequence(
-        name="P3_Task_Plan_Validation",
-        memory=False,
-    )
-    p3_validation.add_children([
-        CheckInvalidTaskPlan(),
-        InvalidPlanMessage(),
-    ])
-
-    # ── Priority 4: Medication Safety ─────────────────────────────────
-    p4_medication = py_trees.composites.Sequence(
-        name="P4_Medication_Safety",
-        memory=False,
-    )
-    p4_medication.add_children([
-        CheckMedicationSafety(),
-        MedicationSafetyAlert(),
-    ])
-
-    # ── Priority 5: Ambiguity / Contradiction Detection ───────────────
-    p5_ambiguity = py_trees.composites.Sequence(
-        name="P5_Ambiguity_Detection",
-        memory=False,
-    )
-    p5_ambiguity.add_children([
-        CheckAmbiguousCommand(),
-        AmbiguityResolutionRequest(),
-    ])
-
-    # ── Priority 6: HRII Task Execution ───────────────────────────────
-    p6_execution = ExecuteHRIITask()
-
-    # ── Root: Priority Selector (left = highest priority) ─────────────
-    root = py_trees.composites.Selector(
-        name="RHA_Controller",
-        memory=False,  # CRITICAL: re-evaluates from P1 on every tick
-    )
-    root.add_children([
-        p1_infrastructure,
-        p2_security,
-        p3_validation,
-        p4_medication,
-        p5_ambiguity,
-        p6_execution,
-    ])
+    # Root: Priority Selector (left = highest priority).
+    # memory=False re-evaluates from P1 on every tick.
+    root = py_trees.composites.Selector(name="RHA_Controller", memory=False)
+    root.add_children(children + [ExecuteHRIITask()])
 
     tree = py_trees.trees.BehaviourTree(root=root)
 
@@ -125,12 +76,7 @@ def create_consensus_tree() -> py_trees.trees.BehaviourTree:
     print("  RHA CONTROLLER — Behavior Tree Routing Hierarchy")
     print("  (left branch = highest priority)")
     print("═" * 60)
-    try:
-        # py_trees 2.x: ascii_tree returns a string
-        print(py_trees.display.ascii_tree(root))
-    except AttributeError:
-        # Fallback for versions that expose print_ascii_tree directly
-        py_trees.display.print_ascii_tree(root)
+    print(py_trees.display.ascii_tree(root))
     print("═" * 60 + "\n")
 
     return tree

@@ -21,7 +21,6 @@ tree's P3 validation branch catches it and requests a re-generation.
 import json
 import logging
 import os
-import threading
 
 # Load .env file if present (python-dotenv); silently skip if not installed
 try:
@@ -130,26 +129,3 @@ def call_llm(task_description: str, scene_context: str = "") -> str:
     except Exception as exc:
         logger.error("LLMAgent: unexpected error — %s", exc)
         return ""
-
-
-def llm_agent_loop(
-    agent_state: dict,
-    state_lock: threading.Lock,
-    stop_event: threading.Event,
-    task_description: str = "Fetch medication for the patient in Ward B Room 2",
-    scene_context: str   = "Doctor authorised. Pharmacy is open. Patient P001 is in Ward B Room 2.",
-    poll_interval_s: float = 3.0,
-) -> None:
-    """
-    Background thread: periodically calls the LLM and updates
-    agent_state["llm_task_json"]. Runs until stop_event is set.
-    """
-    logger.info(
-        "LLMAgent: started (task='%s', poll=%.1fs)", task_description, poll_interval_s
-    )
-    while not stop_event.is_set():
-        plan_json = call_llm(task_description, scene_context)
-        with state_lock:
-            agent_state["llm_task_json"] = plan_json
-        stop_event.wait(timeout=poll_interval_s)
-    logger.info("LLMAgent: stopped")

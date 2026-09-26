@@ -11,6 +11,12 @@
       "sourceType": "github",
       "computedHash": "fc68038c900eb801f73ff96130c9f9dba533cc94212ed8435833242f196dedcf"
     },
+    "ponytail": {
+      "source": "dietrichgebert/ponytail",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "210fa0831f649ce9f8a305f7b7c8cf2a0dd09ac4dd53067109941b96e7811d4e"
+    },
     "robot-perception": {
       "source": "arpitg1304/robotics-agent-skills",
       "sourceType": "github",

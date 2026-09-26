@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "unity": {
+      "command": "node",
+      "args": [
+        "/home/igazi2/unity-mcp-server/src/index.js"
+      ],
+      "env": {
+        "UNITY_BRIDGE_PORT": "7890"
+      }
+    }
+  }
+}

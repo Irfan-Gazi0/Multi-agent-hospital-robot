@@ -28,56 +28,18 @@ def initialise_blackboard() -> py_trees.blackboard.Client:
 
     writer = py_trees.blackboard.Client(name="Initialiser")
 
-    # ── Priority 1 key ────────────────────────────────────────────────
-    writer.register_key(
-        key="facility_emergency_detected",
-        access=py_trees.common.Access.WRITE,
-    )
-
-    # ── Priority 2 keys ───────────────────────────────────────────────
-    writer.register_key(
-        key="user_access_level",
-        access=py_trees.common.Access.WRITE,
-    )
-    writer.register_key(
-        key="required_task_access",
-        access=py_trees.common.Access.WRITE,
-    )
-
-    # ── Priority 3–6 shared task key ─────────────────────────────────
-    writer.register_key(
-        key="llm_task_json",
-        access=py_trees.common.Access.WRITE,
-    )
-
-    # ── Priority 4 medication context ────────────────────────────────
-    writer.register_key(
-        key="patient_id",
-        access=py_trees.common.Access.WRITE,
-    )
-
-    # ── Error detail keys (written by condition checks, read by actions) ──
-    writer.register_key(
-        key="task_validation_error",
-        access=py_trees.common.Access.WRITE,
-    )
-    writer.register_key(
-        key="medication_safety_violation",
-        access=py_trees.common.Access.WRITE,
-    )
-    writer.register_key(
-        key="ambiguity_flags",
-        access=py_trees.common.Access.WRITE,
-    )
-
-    # ── Write safe defaults ────────────────────────────────────────────
-    writer.facility_emergency_detected = False
-    writer.user_access_level = 1          # minimum access until authenticated
-    writer.required_task_access = 1
-    writer.llm_task_json = ""
-    writer.patient_id = ""
-    writer.task_validation_error = ""
-    writer.medication_safety_violation = {}
-    writer.ambiguity_flags = []
+    defaults = {
+        "facility_emergency_detected": False,
+        "user_access_level": 1,  # minimum access until authenticated
+        "required_task_access": 1,
+        "llm_task_json": "",
+        "patient_id": "",
+        "task_validation_error": "",
+        "medication_safety_violation": {},
+        "ambiguity_flags": [],
+    }
+    for key, value in defaults.items():
+        writer.register_key(key=key, access=py_trees.common.Access.WRITE)
+        setattr(writer, key, value)
 
     return writer
