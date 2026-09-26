@@ -15,3 +15,9 @@ build/
 # IDE
 .vscode/
 .idea/
+
+# AI agent tooling (local only)
+.agents/
+.claude/
+.mcp.json
+skills-lock.json
